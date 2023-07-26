@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0,user-scalable=no,minimal-ui">
+    <title>菩提阁</title>
+    <link rel="icon" href="./../images/favico.ico">
+    <!--不同屏幕尺寸根字体设置-->
+    <script src="./../js/base.js"></script>
+    <!--element-ui的样式-->
+    <link rel="stylesheet" href="../../backend/plugins/element-ui/index.css"/>
+    <!-- 引入样式  -->
+    <link rel="stylesheet" href="../styles/index.css"/>
+    <!--本页面内容的样式-->
+    <link rel="stylesheet" href="./../styles/pay-success.css"/>
+    <link rel="stylesheet" href="./../styles/weixinPay.css">
+    <link rel="stylesheet" href="./../styles/register.css">
+    <style>
+
+    </style>
+        </head>
+<body style="margin: 0;padding: 0">
+<div id="pay_success" class="app" style="margin: 0 ;padding: 0">
+    <div class="divHead" style="margin: 0 ;border: 0">
+        <div class="divTitle" style="padding: 0 ;margin: 0">
+            <i class="el-icon-arrow-left" @click="toMainPage"></i>
+            菩提阁
+            <img src="./../images/home.png" @click="toMainPage"/>
+        </div>
+    </div>
+    <div class="rg_layout" style="margin: 0 ; font-size: 0;padding: 0">
+        <div class="rg_form clearfix" style="background-color: #008b8b;margin: 0; padding-top : 0;width: auto;height: 580px">
+            <div class="rg_form_left" style="width: 90%; margin-top: 70px;background-color: #DDDDDD;margin-left: 5%;
+            border-top-left-radius: 20px;border-top-right-radius: 20px">
+                    <p style="margin-bottom: 10px ;">微信支付</p>
+<!--                <p style="font-size: 16px" id="orderCode">订单提交成功，请您及时付款！订单号：<span id="orderId"></span></p>-->
+            </div>
+            <div class="rg_form_center" style="width: 90%;height: 50%;background-color: #FFFAFA;margin-left: 5%;
+            border-bottom-left-radius: 20px;border-bottom-right-radius: 20px">
+
+                <div id="qrcode" class="fl qrcode"></div>
+                <div id="successMsg" class="fl successMsg">订单提交成功，请您及时付款！<br/>订单号：<span id="orderId"></span></div>
+                <div id="qrcodeSuc" class="fl qrcodeSuc">支付成功</div>
+                <div class="fl phone"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- 开发环境版本，包含了有帮助的命令行警告 -->
+<script src="../../backend/plugins/vue/vue.js"></script>
+<!-- 引入组件库 -->
+<script src="../../backend/plugins/element-ui/index.js"></script>
+<!-- 引入axios -->
+<script src="../../backend/plugins/axios/axios.min.js"></script>
+<script src="./../js/request.js"></script>
+<script src="./../js/jquery.1.8.3.min.js"></script>
+<script src="./../js/jquery.qrcode.min.js"></script>
+<script src="./../js/getParameter.js"></script>
+
+<script>
+    new Vue({
+            el: "#pay_success",
+            data() {
+                return {
+                    data:{}
+                }
+            },
+            created() {
+                const parameter = getParameter("data")
+                this.data = JSON.parse(decodeURI(parameter))
+
+            },
+            methods: {
+                goBack(){
+                    window.requestAnimationFrame(() => {
+                        window.location.href = '/front/page/add-order.html'
+                    })
+                },
+                toMainPage() {
+                    window.requestAnimationFrame(() => {
+                        window.location.href = '/front/index.html'
+                    })
+                }
+            }
+        }
+    )
+    $(function () {
+        var parameter = getParameter("data");
+        var data = JSON.parse(decodeURI(parameter));
+        var orderId = data.orderId; //订单号
+        var total_fee = data.total_fee;// 保留两位小数  把分转换成元
+        var url = data.code_url; //统一下单返回的支付url
+        $("#orderId").html("<br>" + orderId + ",<br>订单金额: " + total_fee + "元");
+        //
+        // // // 生成二维码
+        //createQRCode(url);
+        // // //监听订单状态
+        // // monitorStatus(orderId);
+        //
+        $.post("../../order/findPayStatus", {orderId: orderId}, function (data) {
+            console.log("findStatus", data)
+            if (data.code == "0") {
+                //订单未支付
+                // 生成二维码
+                createQRCode(url);
+                $('#successMsg').show();
+                //监听订单状态
+                monitorStatus(orderId);
+            } else {
+                $('#qrcode').hide();
+                $('#successMsg').hide();
+                $('#qrcodeSuc').html(data.data);
+                $('#qrcodeSuc').show();
+            }
+        })
+    });
+
+    //生成二维码
+    function createQRCode(url) {
+        $('#qrcode').makeQRCode({
+            render: 'div', //渲染模式,取值:canvas / image / div
+            ecLevel: 'M', //容错级别, 取值: L:7% / M:15% / Q:25% / H:30%
+            minVersion: 6, //二维码密度, 取值: 0-10
+            fill: '#666', //二维码颜色
+            background: '#fff', //二维码背景颜色
+            text: url, //扫码时获取到的值
+            size: 150, //二维码大小,单位是像素
+            radius: 2, //圆滑度,取值50以内
+            quiet: 4, //二维码边框
+        });
+    }
+
+    //监听订单状态
+    function monitorStatus(orderId) {
+        var interval = self.setInterval(function () {
+
+            $.post("../../order/findPayStatus", {orderId: orderId}, function (data) {
+                console.log("findStatus", data)
+                if (data.code == "1") {
+                    $('#qrcode').hide();
+                    $('#successMsg').hide();
+                    $('#qrcodeSuc').html(data.data);
+                    $('#qrcodeSuc').show();
+                    window.clearInterval(interval);
+                    if (data.data == "订单已支付") {
+                        window.requestAnimationFrame(() => {
+                            window.location.replace('/front/page/pay-success.html')
+                        })
+                    }
+                }
+            });
+
+        }, 3000);
+    }
+</script>
+</body>
+</html>

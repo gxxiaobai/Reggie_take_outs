@@ -1,0 +1,23 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://localhost:3306/reggie?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+  main:
+    banner-mode: off #关闭图标
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true #在映射表字段名时自动转换为驼峰 user_name(userName)
+  global-config:
+    banner: off #关闭图标
+    db-config:
+      id-type: auto #主键id自增策略
+reggie:
+  path: D:\pic\

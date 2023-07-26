@@ -1,0 +1,29 @@
+
+.rg_form_center .qrcode {
+    display: inline-block;
+    float: left;
+    margin-top: 40px;
+    margin-left: 85px;
+    white: 100%;
+    height: 100%;
+}
+
+.rg_form_center .qrcodeSuc {
+    display: inline-block;
+    float: left;
+    text-align: center;
+    font-size: 30px;
+    margin-top: 80px;
+    margin-left: 88px;
+    display: none;
+}
+.rg_form_center .successMsg {
+    display: inline-block;
+    float: left;
+    text-align: center;
+    font-size: 17px;
+    margin-top: 0px;
+    margin-left: 37px;
+    display: none;
+}
+
