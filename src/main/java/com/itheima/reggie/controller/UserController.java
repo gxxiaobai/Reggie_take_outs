@@ -42,13 +42,13 @@ public class UserController {
              code="1234";
             log.info("生成的验证码是{}",code);
             try {
-//                SendSmsResponse sendSmsResponse = SMSUtils.sendSms(phone, code);
-//                if (sendSmsResponse.body.getMessage().equals("OK")&&sendSmsResponse.getStatusCode()==200){
+                SendSmsResponse sendSmsResponse = SMSUtils.sendSms(phone, code);
+                if (sendSmsResponse.body.getMessage().equals("OK")&&sendSmsResponse.getStatusCode()==200){
                     session.setAttribute(phone,code);
                     return R.success("验证码已发送");
-//                }
+                }
             } catch (Exception e) {
-//                session.setAttribute(phone,code);
+                session.setAttribute(phone,code);
                 throw new CustomException("短信发送失败");
             }
         }
